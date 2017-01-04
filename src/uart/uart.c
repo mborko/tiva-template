@@ -23,7 +23,7 @@ int main(void) {
     InitConsole();
     while (1) {
 	    DELAY(500);
-	    UARTprintf("Hallo Welt!");
+	    UARTprintf("Hallo Welt!\n");
     }
     return 0;
 }
