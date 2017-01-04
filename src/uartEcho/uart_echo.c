@@ -106,7 +106,7 @@ UARTIntHandler(void)
         //
         // Blink the LED to show a character transfer is occuring.
         //
-        GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, GPIO_PIN_0);
+        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0, GPIO_PIN_0);
 
         //
         // Delay for 1 millisecond.  Each SysCtlDelay is about 3 clocks.
@@ -116,7 +116,7 @@ UARTIntHandler(void)
         //
         // Turn off the LED
         //
-        GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, 0);
+        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0, 0);
     }
 }
 
@@ -145,66 +145,65 @@ UARTSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 // This example demonstrates how to send a string of data to the UART.
 //
 //*****************************************************************************
-int
+	int
 main(void)
 {
-    //
-    // Set the clocking to run directly from the crystal at 120MHz.
-    //
-    g_ui32SysClock = MAP_SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
-                                             SYSCTL_OSC_MAIN |
-                                             SYSCTL_USE_PLL |
-                                             SYSCTL_CFG_VCO_480), 120000000);
-    //
-    // Enable the GPIO port that is used for the on-board LED.
-    //
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
+	//
+	// Set the clocking to run directly from the crystal at 16MHz.
+	//
+	SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
+	g_ui32SysClock = SysCtlClockGet();
 
-    //
-    // Enable the GPIO pins for the LED (PN0).
-    //
-    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_0);
+	//
+	// Enable the GPIO port that is used for the on-board LED.
+	//
+	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 
-    //
-    // Enable the peripherals used by this example.
-    //
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+	//
+	// Enable the GPIO pins for the LED (PN0).
+	//
+	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_0);
 
-    //
-    // Enable processor interrupts.
-    //
-    ROM_IntMasterEnable();
+	//
+	// Enable the peripherals used by this example.
+	//
+	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 
-    //
-    // Set GPIO A0 and A1 as UART pins.
-    //
-    GPIOPinConfigure(GPIO_PA0_U0RX);
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+	//
+	// Enable processor interrupts.
+	//
+	ROM_IntMasterEnable();
 
-    //
-    // Configure the UART for 115,200, 8-N-1 operation.
-    //
-    ROM_UARTConfigSetExpClk(UART0_BASE, g_ui32SysClock, 115200,
-                            (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
-                             UART_CONFIG_PAR_NONE));
+	//
+	// Set GPIO A0 and A1 as UART pins.
+	//
+	GPIOPinConfigure(GPIO_PA0_U0RX);
+	GPIOPinConfigure(GPIO_PA1_U0TX);
+	ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
-    //
-    // Enable the UART interrupt.
-    //
-    ROM_IntEnable(INT_UART0);
-    ROM_UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT);
+	//
+	// Configure the UART for 115,200, 8-N-1 operation.
+	//
+	ROM_UARTConfigSetExpClk(UART0_BASE, g_ui32SysClock, 115200,
+			(UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
+			 UART_CONFIG_PAR_NONE));
 
-    //
-    // Prompt for text to be entered.
-    //
-    UARTSend((uint8_t *)"\033[2JEnter text: ", 16);
+	//
+	// Enable the UART interrupt.
+	//
+	ROM_IntEnable(INT_UART0);
+	ROM_UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT);
 
-    //
-    // Loop forever echoing data through the UART.
-    //
-    while(1)
-    {
-    }
+	//
+	// Prompt for text to be entered.
+	//
+	UARTSend((uint8_t *)"\033[2JEnter text: ", 16);
+
+	//
+	// Loop forever echoing data through the UART.
+	//
+	while(1)
+	{
+	}
 }
